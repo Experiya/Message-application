@@ -1,0 +1,183 @@
+{% extends "base.html" %} {%block title%}Group {{room}}{%endblock%} {% load static %}
+{%block body%}
+<link rel="stylesheet" href="{% static 'chatapp.css' %}" />
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"
+></script>
+
+<script>
+
+function getMessages() {
+    var div = $("#messages");
+    div.scrollTop(div.prop('scrollHeight'));
+}
+  $(document).ready(function () {
+    
+    $(function() {
+    getMessages();
+})
+    setInterval(function () {
+      $.ajax({
+        type: "GET",
+        url: "/getMessages/{{room}}/",
+        success: function (response) {
+          // console.log(response);
+          $("#display").empty();
+          var main_user = "{{username}}";
+          for (var key in response.messages) {
+            if (main_user === response.messages[key].user) {
+              var temp =
+                "<div class='alert alert-primary' role='alert'> <b>" +
+                response.messages[key].user +
+                "</b><p>" +
+                response.messages[key].value +
+                "</p>   </div>";
+
+              var k =
+                '<div class="msg right-msg">' +
+                '<div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>' +
+                '<div class="msg-bubble">' +
+                '<div class="msg-info">' +
+                '<div class="msg-info-name">' +
+                response.messages[key].user +
+                "</div>" +
+                '<div class="msg-info-time">' +
+                response.messages[key].date +
+                "</div>" +
+                "</div>" +
+                '<div class="msg-text">' +
+                response.messages[key].value +
+                "</div>" +
+                "</div>" +
+                "</div>";
+
+              $("#display").append(k);
+            } else {
+              var temp =
+                "<div class='alert alert-secondary' role='alert'> <b>" +
+                response.messages[key].user +
+                "</b><p>" +
+                response.messages[key].value +
+                "</p>   </div>";
+
+              var k =
+                '<div class="msg left-msg">' +
+                '<div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)" ></div>' +
+                '<div class="msg-bubble">' +
+                '<div class="msg-info">' +
+                '<div class="msg-info-name">' +
+                response.messages[key].user +
+                "</div>" +
+                '<div class="msg-info-time">' +
+                response.messages[key].date +
+                "</div>" +
+                "</div>" +
+                '<div class="msg-text">' +
+                response.messages[key].value +
+                "</div>" +
+                "</div>" +
+                "</div>";
+
+              $("#display").append(k);
+            }
+          }
+        },
+        error: function (response) {
+          alert("oops something went wrong !!");
+        },
+      });
+    }, 1000);
+  });
+</script>
+
+<!-- <section class="container">
+<h1>{{username}} / room - {{room}} </h1>
+</section> -->
+
+<!-- <section class="container">
+    <div id="display">
+      <div class="alert alert-primary" role="alert">
+        This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+      </div>
+      <div class="alert alert-primary" role="alert">
+        This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+      </div>
+    </div>
+
+
+  </section>  -->
+
+<section class="msger">
+  <header class="msger-header">
+    
+    <div class="msger-header-title">
+      <i onclick="window.location.href='/'" class="fas fa-arrow-circle-left"></i>
+    </div>
+    <div class="msger-header-title">
+      
+      <i class="fas fa-user"></i> {{username}}
+    </div>
+    <div class="msger-header-title">
+      <i class="fas fa-layer-group"></i> {{room}}
+    </div>
+    <div class="msger-header-options">
+      <span><i class="fas fa-cog"></i></span>
+    </div>
+  </header>
+
+  <main class="msger-chat" >
+    <div id="display"></div>
+  </main>
+
+  <form class="msger-inputarea form-inline" id="post-form">
+    {% csrf_token %}
+    <input type="hidden" name="username" id="username" value="{{username}}" />
+    <input
+      type="hidden"
+      name="room_id"
+      id="room_id"
+      value="{{room_details.name}}"
+    />
+
+    <input
+      type="text"
+      class="msger-input"
+      name="message"
+      id="message"
+      placeholder="Enter your message..."
+      autocomplete="off"
+    />
+    <button type="submit" value="Send" class="msger-send-btn">Send</button>
+  </form>
+</section>
+
+<script type="text/javascript">
+
+
+
+  $(document).on("submit", "#post-form", function (e) {
+    e.preventDefault();
+    if ($("#message").val() !== "") {
+      $.ajax({
+        type: "POST",
+        url: "/send",
+        data: {
+          username: $("#username").val(),
+          room_id: $("#room_id").val(),
+          message: $("#message").val(),
+          csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+        },
+        success: function (data) {
+          //  alert(data)
+        },
+      });
+    }
+    document.getElementById("message").value = "";
+  });
+</script>
+
+{%endblock%}

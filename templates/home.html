@@ -1,0 +1,27 @@
+
+{% extends "base.html" %}
+{%block title%}Home{%endblock%}
+{% load static %}
+{%block body%}
+<link rel="stylesheet" href="{% static 'css.css' %}">
+<div class="contact-clean">
+  <form method="POST" action="checkview">
+    {% csrf_token %}
+      <h2 class="text-center">Join New Chat</h2>
+      <div class="form-group"><input class="form-control" type="text" name="username" placeholder="Usernname" required></div>
+      <div class="form-group"><input class="form-control is-invalid" type="text" name="room_name" placeholder="Room" required></div>
+      <div class="form-group"><button class="btn btn-primary" type="submit">send </button></div>
+  </form>
+{%if room%}
+  <div class="mt-5 h-100 d-flex justify-content-center align-items-center">
+  
+    <div class="list-group w-50">
+    <h2 class="text-center">Available Group</h2>
+      {% for i in room%}
+     <a href="#" class="list-group-item list-group-item-action">{{i.name}}</a>
+      {%endfor%}
+    </div>
+  </div>
+{%endif%}
+</div>
+{%endblock%}
